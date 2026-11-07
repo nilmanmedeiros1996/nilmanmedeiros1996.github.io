@@ -1,0 +1,230 @@
+<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><title>Calculadora de Atualização Judicial</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+<style>
+:root{--bg:#f5f4ef;--card:#fff;--tx:#1f2430;--mu:#6b7080;--bd:#dcdad0;--ac:#1d4e7a;--ac2:#e8f0f7;--wn:#8a5a00;--wb:#fff4d6;--ok:#1b6b3a;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#15171c;--card:#1e2128;--tx:#e8e9ee;--mu:#9a9fb0;--bd:#323644;--ac:#7fb4e6;--ac2:#232d3a;--wn:#f0c36a;--wb:#3a3118;--ok:#7fd69b}}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.45 system-ui,"Segoe UI",Roboto,sans-serif}
+main{max-width:1100px;margin:auto;padding:16px}h1{font:600 24px Georgia,serif;margin:4px 0 12px}
+.tabs{display:flex;gap:6px;margin-bottom:12px}.tabs button{background:var(--card);color:var(--tx);border:1px solid var(--bd)}.tabs button.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:14px;margin-bottom:12px}
+h2{font:600 15px system-ui;margin:0 0 10px;color:var(--ac)}
+.g{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+label{display:block;font-size:12px;color:var(--mu)}label.c{display:flex;gap:6px;align-items:center;font-size:13px;color:var(--tx)}
+input,select,textarea,button{font:inherit;color:var(--tx);background:var(--bg);border:1px solid var(--bd);border-radius:6px;padding:6px 8px;width:100%}
+input[type=checkbox]{width:auto}button{width:auto;cursor:pointer;background:var(--ac);color:#fff;border:0}button.s{background:var(--ac2);color:var(--ac)}
+.tw{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:13px}th,td{padding:4px 6px;border-bottom:1px solid var(--bd);text-align:right;white-space:nowrap}th{color:var(--mu);font-weight:500}td:nth-child(2),th:nth-child(2){text-align:left}
+#rows td input{min-width:110px}#rows td:nth-child(2) input{min-width:220px}
+.sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-bottom:10px}.k{background:var(--ac2);border-radius:8px;padding:8px 10px}.k small{color:var(--mu);display:block}.k b{font-size:16px}.k.t{background:var(--ac);color:#fff}.k.t small{color:#dbe7f3}
+.w{background:var(--wb);color:var(--wn);padding:8px 10px;border-radius:8px;margin:6px 0;font-size:13px}.hide{display:none}.ok{color:var(--ok)}.sl{color:var(--ac);font-weight:600}
+details{margin:4px 0}summary{cursor:pointer;font-size:13px}.drop{border:2px dashed var(--bd);border-radius:10px;padding:18px;text-align:center}
+@media print{.tabs,.card:not(.rc),button{display:none!important}}
+
+.rp{--c1:#1d4e7a;--c2:#c8962e;--c3:#2f8f83;--c4:#7a5cb0;--c5:#c4573a;--c6:#6b7080;--c7:#4a8f3f;--c8:#9a7b4f}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]) .rp{--c1:#5a9fd8;--c2:#e0b252;--c3:#4fc0b2;--c4:#a78bd8;--c5:#e5795b;--c6:#9a9fb0;--c7:#79c26c;--c8:#c9a97a}}
+.rh{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;padding:18px 20px;border-radius:10px;background:linear-gradient(135deg,#12395c,#1d4e7a);color:#fff;margin-bottom:14px}
+.eb{font:600 11px system-ui;letter-spacing:.14em;color:#e0c27a}.rh h3{font:600 22px Georgia,serif;margin:4px 0 0}
+.tot{text-align:right}.tot small{display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#cfe0f0}.tot b{font:700 32px Georgia,serif;letter-spacing:-.5px}
+.meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:1px;background:var(--bd);border:1px solid var(--bd);border-radius:8px;overflow:hidden;margin-bottom:14px}
+.meta div{background:var(--card);padding:8px 12px}.meta small{display:block;font-size:11px;color:var(--mu);text-transform:uppercase;letter-spacing:.06em}.meta b{font-weight:600}
+.bar{display:flex;height:14px;border-radius:7px;overflow:hidden;margin:6px 0 14px;background:var(--bd)}.bar i{display:block;height:100%}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:14px;margin-bottom:14px}
+.pn{border:1px solid var(--bd);border-radius:8px;padding:12px 14px}.pn h4{margin:0 0 8px;font:600 12px system-ui;letter-spacing:.08em;text-transform:uppercase;color:var(--mu)}
+.ln{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px dashed var(--bd);font-size:14px}.ln:last-child{border:0}.ln span.d{width:10px;height:10px;border-radius:3px;flex:none}.ln em{margin-left:auto;font-style:normal;font-variant-numeric:tabular-nums}.ln small{color:var(--mu);width:46px;text-align:right}
+.ln.st{font-weight:600;border-top:1px solid var(--bd);margin-top:2px}.ln.gt{font-weight:700;font-size:16px;color:var(--ac);border-top:2px solid var(--ac);margin-top:4px;padding-top:8px}
+.cr p{margin:0 0 8px;font-size:13.5px}.cr b{display:block;font-size:11px;color:var(--mu);letter-spacing:.06em;text-transform:uppercase;font-weight:600}
+.rt{border:1px solid var(--bd);border-radius:8px}.rt table{font-variant-numeric:tabular-nums}.rt th{background:var(--ac2);color:var(--ac);font-weight:600;padding:8px 8px;position:sticky;top:0}.rt tbody tr:nth-child(even){background:color-mix(in srgb,var(--ac2) 45%,transparent)}.rt tfoot td{font-weight:700;border-top:2px solid var(--ac);background:var(--ac2);padding:8px}
+.chip{display:inline-block;background:var(--ac2);color:var(--ac);padding:1px 8px;border-radius:10px;font-size:12px;font-weight:600}
+.acts{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+@media print{body{background:#fff}main{padding:0}.rh{-webkit-print-color-adjust:exact;print-color-adjust:exact}.bar i,.ln span.d{-webkit-print-color-adjust:exact;print-color-adjust:exact}.card.rc{border:0;padding:0}.card.rc>h2{display:none}.acts{display:none}}
+</style></head><body><main>
+<h1>Calculadora de Atualização Judicial</h1>
+<div class="tabs"><button class="on" data-t="tc">Calculadora</button><button data-t="ti">Índices (atualizar planilhas)</button></div>
+
+<section id="tc">
+<div class="card"><h2>Tribunal e identificação (opcional)</h2><div class="g"><label>Tribunal<select id="tj"><option value="">— Selecione —</option><option>TJAC</option><option>TJAL</option><option>TJAM</option><option>TJAP</option><option>TJBA</option><option>TJCE</option><option>TJDFT</option><option>TJES</option><option>TJGO</option><option>TJMA</option><option>TJMG</option><option>TJMS</option><option>TJMT</option><option>TJPA</option><option>TJPB</option><option>TJPE</option><option>TJPI</option><option>TJPR</option><option>TJRJ</option><option>TJRN</option><option>TJRO</option><option>TJRR</option><option>TJRS</option><option>TJSC</option><option>TJSE</option><option>TJSP</option><option>TJTO</option><option>Outro tribunal</option></select></label><label>Vara / Comarca<input id="vr"></label>
+<label>Processo nº<input id="pr"></label><label>Autor(a)<input id="au"></label><label>Réu<input id="re"></label><label>Observações (aparecem no demonstrativo)<input id="ob"></label></div><div class="g" style="margin-top:10px;align-items:end"><label>Modelo rápido de critérios<select id="md"><option value="lei">Lei 14.905/24: IPCA + Taxa Legal</option><option value="selic">SELIC única (correção e juros)</option><option value="mix">IPCA até o mês escolhido e depois SELIC</option></select></label><div><button class="s" id="ma">Aplicar modelo</button></div></div></div>
+
+<div class="card"><h2>1. Correção monetária</h2><div class="g">
+<label>Data final do cálculo<input type="date" id="F"></label>
+<label>Índice – fase 1<select id="i1"></select></label>
+<label>Fase 1 a partir de (opcional)<input type="month" id="s1"></label>
+<label>Fase 1 até (mês, inclusive)<input type="month" id="S" value="2025-09"></label>
+<label>Índice – fase 2<select id="i2"></select></label>
+<label>Fase 2 até (opcional)<input type="month" id="S2"></label>
+<label>Índice – fase 3 (após fase 2)<select id="i3"></select></label>
+<label>Início da correção<select id="cm"><option value="next">Mês seguinte ao desconto (tabelas)</option><option value="same">Incluir o mês do desconto</option></select></label></div>
+<div class="g" style="margin-top:8px">
+<label class="c"><input type="checkbox" id="em" checked> Incluir o mês da data final</label>
+<label class="c"><input type="checkbox" id="ng"> Não aplicar índice negativo (deflação = 0%)</label></div></div>
+
+<div class="card"><h2>2. Juros moratórios</h2><div class="g">
+<label>Tipo dos juros<select id="jt">
+<option value="legal">Taxa Legal – art. 406 CC/Lei 14.905/24 + STJ Tema 1368 (SELIC − IPCA)</option>
+<option value="a12">12% a.a. (1% a.m.)</option><option value="a6">6% a.a. (0,5% a.m.)</option>
+<option value="selic">Somente SELIC (taxa mensal)</option>
+<option value="custom">Taxa personalizada % a.m.</option></select></label>
+<label id="oldw">Antes de 30/08/2024 aplicar<select id="old"><option value="0.12">12% a.a.</option><option value="0.06">6% a.a.</option></select></label>
+<label id="crw" class="hide">% ao mês<input type="number" id="cr" step="0.01" value="1"></label>
+<label>Início dos juros<select id="jm"><option value="g">Data única (ao lado)</option><option value="item">Data de cada desconto</option></select></label>
+<label>Data única de início (ex.: citação)<input type="date" id="jd"></label>
+<label>Juros incidem sobre<select id="jb"><option value="corr">Valor corrigido</option><option value="nom">Valor nominal</option></select></label>
+<label>Regime<select id="jc"><option value="s">Simples</option><option value="c">Compostos</option></select></label></div>
+<label class="c" style="margin-top:8px"><input type="checkbox" id="so"> Somente juros da SELIC: não aplicar juros de mora (vale nos meses corrigidos pela SELIC)</label>
+<label class="c" style="margin-top:8px"><input type="checkbox" id="sel" checked> Meses corrigidos pela SELIC: juros são da SELIC (não somar juros de mora)</label></div>
+
+<div class="card"><h2>3. Acréscimos e deduções</h2><div class="g">
+<label>Repetição em dobro<select id="dm"><option value="n">Não</option><option value="all">Todos os descontos</option><option value="from">Só a partir de…</option></select></label>
+<label>…a partir de (dobro)<input type="date" id="dd" value="2021-03-30"></label>
+<label>Multa (%)<input type="number" id="mu" step="0.1" value="0"></label>
+<label>Honorários (%)<input type="number" id="ho" step="0.1" value="0"></label>
+<label>Honorários sobre<select id="hb"><option value="sm">Subtotal + multa</option><option value="s">Subtotal</option></select></label>
+<label>Ignorar descontos anteriores a (prescrição)<input type="date" id="pz"></label>
+<label>Custas / despesas (R$)<input id="cu" inputmode="decimal" value="0"></label>
+<label>Valores já pagos / abatimentos (R$)<input id="ab" inputmode="decimal" value="0"></label></div>
+<label class="c" style="margin-top:8px"><input type="checkbox" id="memo"> Exibir memorial mês a mês de cada item</label></div>
+
+<div class="card"><h2>4. Itens a atualizar</h2><div class="g" style="align-items:end">
+<label>Quantidade de linhas (10 a 100)<input type="number" id="qt" min="10" max="100" value="10"></label>
+<div><button class="s" id="bp">Colar da planilha</button> <button class="s" id="bc">Limpar</button></div></div>
+<div id="pw" class="hide"><textarea id="pt" rows="4" placeholder="data;valor;descrição (uma linha por item, TAB ou ;)"></textarea><button id="bi" style="margin-top:6px">Importar</button></div>
+<div class="tw"><table><thead><tr><th>#</th><th>Descrição do desconto</th><th>Data do desconto</th><th>Valor (R$)</th></tr></thead><tbody id="rows"></tbody></table></div></div>
+
+<div class="card rc"><h2>Resultado</h2><div id="out"></div></div>
+</section>
+
+<section id="ti" class="hide">
+<div class="card"><h2>Enviar planilhas de índices</h2>
+<div class="drop"><p>Envie os arquivos .xls/.xlsx (IPCA/EC 136, SELIC, INPC, TR). O tipo é identificado automaticamente e substitui a tabela anterior.</p>
+<input type="file" id="fi" multiple accept=".xls,.xlsx"></div><div id="lg"></div></div>
+<div class="card"><h2>Índices carregados</h2><div class="tw"><table><thead><tr><th>Índice</th><th>Cobertura</th><th>Referência</th><th>Origem</th></tr></thead><tbody id="st"></tbody></table></div>
+<button class="s" id="rs" style="margin-top:10px">Restaurar planilhas originais</button></div>
+</section>
+</main>
+<script>
+let D={"IPCA":{"s":23934,"v":[9.178629223,8.7236574141,8.3076428186,8.1746257094,8.0220191311,7.7917103316,7.6201476245,7.6201476245,7.6201476245,7.3028663043,7.3028663043,7.3028663043,6.8172314879,6.8172314879,6.8172314879,6.4845999717,6.4845999717,6.4845999717,6.2224615633,6.2224615633,6.2224615633,6.2224615633,6.2224615633,6.2224615633,5.8285903668,5.8285903668,5.8285903668,5.8285903668,5.8285903668,5.8285903668,5.661565544,5.661565544,5.661565544,5.661565544,5.661565544,5.661565544,5.661565544,5.661565544,5.661565544,5.661565544,5.661565544,5.661565544,5.3652626131,5.3652626131,5.3652626131,5.3652626131,5.3652626131,5.3652626131,5.3652626131,5.3652626131,5.3652626131,5.3652626131,5.3652626131,5.3652626131,5.2779466709,5.2779466709,5.2779466709,5.2779466709,5.2779466709,5.2779466709,5.2779466709,5.2779466709,5.2779466709,5.2779466709,5.2779466709,5.2779466709,4.8459297975,4.8459297975,4.8459297975,4.8459297975,4.8459297975,4.8459297975,4.8459297975,4.8459297975,4.8459297975,4.8459297975,4.8459297975,4.8459297975,4.5700988744,4.5414875032,4.518893038,4.5026833778,4.480281968,4.4584356334,4.4415577141,4.4001958729,4.3488790995,4.332415919,4.3164450722,4.2741311736,4.2507520374,4.2245597668,4.2060531331,4.1892959493,4.156872345,4.1394865017,4.1258711269,4.094344673,4.0538066069,4.0288278741,3.9928918474,3.9115319822,3.7957612637,3.7220643888,3.6422980612,3.601243881,3.5606524431,3.5306419863,3.5228916247,3.5292442644,3.5197409638,3.4997921485,3.4768449717,3.4709443663,3.4550511311,3.4317154659,3.4011055163,3.3875552951,3.3804563368,3.3622999172,3.3435758922,3.3127671577,3.2868014264,3.2707746307,3.2603415378,3.2399299789,3.2129412722,3.1912408345,3.167799121,3.1567504943,3.1335621345,3.1077676629,3.1040428115,3.1006321162,3.0919745874,3.0870353308,3.0698442033,3.0460847423,3.0345534392,3.0191557449,3.0035373507,2.9924652294,2.987386672,2.9793424474,2.9838181747,2.9844150577,2.9787554224,2.977266789,2.9686576817,2.9577141394,2.9473982456,2.93215106,2.9187249254,2.9068070166,2.9004260792,2.8929045275,2.8845393633,2.877633044,2.8655975344,2.8573113315,2.850470203,2.8439291659,2.8241600456,2.8045283472,2.7866935087,2.7802988214,2.7639912729,2.7485991179,2.7240823765,2.7070280995,2.6975865465,2.6905910099,2.6825433798,2.669463011,2.6617439536,2.651139396,2.6345417827,2.6316469711,2.6222070258,2.606826748,2.5969583064,2.5912575398,2.5853113238,2.5804085475,2.5757721576,2.5644884086,2.5547802437,2.5415641103,2.517895889,2.5041232113,2.4921608393,2.4765585206,2.4718619829,2.4740886627,2.4753263258,2.4676765286,2.4524712071,2.4315597929,2.4148970035,2.3966822187,2.3736577386,2.3595007342,2.3414714044,2.3251950391,2.3198593626,2.3175418208,2.3113013072,2.2991159925,2.2895000921,2.2790166157,2.2663251946,2.2516892147,2.2398181783,2.2342325968,2.2246665308,2.2133783014,2.2094013789,2.2021343356,2.1935793761,2.1831004937,2.1690019808,2.1573522785,2.1425685555,2.1238784253,2.1095335969,2.0992472852,2.0885954484,2.0790319017,2.071161488,2.0697126891,2.0664064388,2.060842165,2.0509973776,2.0393729517,2.0241915154,2.0107196934,1.9967424959,1.982271911,1.9669298581,1.9555874509,1.9464391867,1.9431358558,1.9404192688,1.9328810328,1.9236475246,1.9163653364,1.9013447131,1.8845720221,1.8598362007,1.8370566976,1.8176082889,1.8067676828,1.7890560281,1.7785625093,1.7709474354,1.7640675718,1.7525010648,1.7377303568,1.7174642783,1.7018076479,1.6779803273,1.6707959049,1.6623180827,1.6481440439,1.641577733,1.6327608245,1.6254463161,1.6217163684,1.6186409506,1.6144433978,1.6113817724,1.6064019265,1.5977739471,1.5953808758,1.5920375969,1.5882258548,1.5856887528,1.5885481395,1.5830076128,1.5812682178,1.5759101234,1.5708832968,1.5654043815,1.5593230217,1.5534200256,1.5518681574,1.5486160637,1.5464510323,1.5294738723,1.5197474884,1.5177743817,1.516409613,1.5076651551,1.5048060237,1.5072175718,1.5027094434,1.4976175438,1.489573845,1.4789255809,1.473767395,1.4728836648,1.4715592614,1.4703829551,1.4690608004,1.4677398345,1.4656878715,1.4504580618,1.4402324117,1.4370708558,1.4367834991,1.4369271918,1.4454553786,1.4451663453,1.4408438139,1.4375374777,1.4310975387,1.4177704961,1.4063788276,1.3916275753,1.3808568915,1.3742604414,1.3615975839,1.3534767235,1.3475475145,1.3364549385,1.3269012495,1.315196005,1.3003717669,1.2849523388,1.2700922594,1.2602622141,1.252994844,1.2407117972,1.2290359557,1.2081352164,1.2010490272,1.192818579,1.1912699281,1.2000301481,1.2044867491,1.2025626489,1.1962226687,1.1900344894,1.1835251013,1.1745981553,1.1665489675,1.1599373247,1.1540516612,1.1535902252,1.154398304,1.1511750139,1.1471599541,1.1447559666,1.1409906973,1.1364449176,1.1329328258,1.1241643439,1.1201318692,1.1177845217,1.1128878153,1.1085644141,1.1052486681,1.103152678,1.1017204415,1.0958031047,1.0890509886,1.085360762,1.084168177,1.0709949392,1.0641841606,1.0596277612,1.0558267848,1.053088754,1.0496249916,1.0507808505,1.0457611968,1.044820858,1.0429435596,1.0395131661,1.0360940557,1.028891813,1.0199165474,1.0131285859,1.0072863252,1.0056772416,1.00497376,1.0082,1.0]},"SELIC":{"s":23941,"v":[5.4119,5.3859,5.3433,5.3008,5.2604,5.2202,5.1818,5.1486,5.1177,5.0889,5.0611,5.0353,5.0118,4.9896,4.9689,4.9488,4.929,4.9097,4.89,4.871,4.8524,4.8344,4.8164,4.7991,4.7824,4.766,4.7494,4.7336,4.7175,4.7015,4.6856,4.6697,4.653,4.6226,4.5929,4.5662,4.5449,4.5229,4.5058,4.4895,4.4735,4.4565,4.4417,4.4168,4.3874,4.3611,4.3371,4.3153,4.2915,4.2582,4.2347,4.2145,4.1978,4.1812,4.1655,4.1506,4.1368,4.1229,4.1069,4.0923,4.0778,4.0633,4.0503,4.0354,4.0215,4.0084,3.9943,3.9821,3.9692,3.957,3.945,3.9323,3.9221,3.9095,3.8976,3.8842,3.8715,3.8565,3.8405,3.8273,3.812,3.7981,3.7842,3.7689,3.7564,3.7427,3.7279,3.7138,3.7005,3.6851,3.6707,3.6569,3.6404,3.625,3.6076,3.5879,3.5696,3.5518,3.5331,3.5134,3.4948,3.474,3.4563,3.4395,3.4231,3.4097,3.396,3.3833,3.3725,3.3587,3.3469,3.3346,3.3223,3.3094,3.2965,3.284,3.2719,3.2594,3.2446,3.2308,3.2186,3.2033,3.1892,3.1742,3.1583,3.1432,3.1266,3.1116,3.0975,3.0837,3.069,3.0547,3.0432,3.029,3.0182,3.0054,2.9936,2.9819,2.9693,2.9587,2.9478,2.9376,2.9277,2.9169,2.9082,2.8977,2.8883,2.878,2.8689,2.8592,2.8493,2.8413,2.832,2.8236,2.8152,2.8059,2.7979,2.7895,2.7805,2.7717,2.7621,2.7514,2.7412,2.7302,2.7184,2.7082,2.697,2.6865,2.6779,2.6682,2.6598,2.6521,2.6445,2.6366,2.6297,2.6228,2.6159,2.6093,2.602,2.5954,2.5895,2.5819,2.5752,2.5677,2.5598,2.5512,2.5423,2.5338,2.5257,2.5176,2.5083,2.4997,2.4913,2.4821,2.4737,2.4638,2.4542,2.4445,2.4338,2.4244,2.4156,2.407,2.3979,2.389,2.3815,2.3733,2.3662,2.3588,2.3524,2.3456,2.3387,2.3333,2.3272,2.3217,2.3162,2.3102,2.3053,2.2998,2.2937,2.2877,2.2816,2.2744,2.2673,2.2602,2.2521,2.2449,2.237,2.2285,2.2206,2.2129,2.2047,2.196,2.1878,2.1783,2.1696,2.1605,2.151,2.1426,2.133,2.1236,2.1154,2.105,2.0955,2.0856,2.0749,2.0631,2.052,2.0409,2.0298,2.0192,2.0076,1.997,1.987,1.9754,1.9648,1.9537,1.9421,1.931,1.9188,1.9077,1.8972,1.8868,1.8756,1.8647,1.856,1.8455,1.8376,1.8283,1.8202,1.8122,1.8042,1.7978,1.7914,1.7857,1.7803,1.7745,1.7698,1.7645,1.7593,1.7541,1.7489,1.7435,1.7378,1.7331,1.7277,1.7228,1.7179,1.7125,1.7076,1.7029,1.6977,1.6923,1.6876,1.6819,1.6769,1.6723,1.6675,1.6637,1.66,1.6562,1.6533,1.6499,1.6471,1.6447,1.6426,1.6407,1.6391,1.6375,1.6359,1.6344,1.6328,1.6313,1.63,1.628,1.6259,1.6232,1.6201,1.6165,1.6122,1.6078,1.6029,1.597,1.5893,1.582,1.5744,1.5651,1.5568,1.5465,1.5363,1.526,1.5143,1.5036,1.4934,1.4832,1.472,1.4608,1.4516,1.4399,1.4307,1.4195,1.4088,1.3981,1.3867,1.377,1.367,1.3578,1.3489,1.3392,1.3312,1.3229,1.314,1.3057,1.2978,1.2887,1.28,1.2716,1.2623,1.2544,1.2451,1.235,1.2251,1.2155,1.2049,1.1935,1.1825,1.1697,1.1581,1.1459,1.1331,1.1226,1.1104,1.0988,1.0888,1.0767,1.0658,1.0551,1.0439,1.0317,1.0208,1.01,1.0]},"INPC":{"s":23934,"v":[9.7427235951,9.1843171145,8.7088157728,8.5792688136,8.4226082996,8.1559100411,7.981123438,7.8500279711,7.7730745331,7.6649980602,7.5206024924,7.3321658306,7.2011057067,7.0282116988,6.9572477715,6.8767893364,6.7818435272,6.680961016,6.5725145262,6.4779366511,6.4322675514,6.4136679145,6.3545704097,6.2495775074,6.1742516375,6.1076779478,6.1076779478,6.0997482753,6.086358287,6.0693640674,6.0164195753,5.9228387234,5.8980668427,5.8304338106,5.7962360181,5.77889932,5.7387282224,5.7335680112,5.7358623562,5.7022192625,5.6828974113,5.636117635,5.5974949201,5.5486666535,5.547557142,5.5348270399,5.542031681,5.5293142583,5.513875407,5.5349080578,5.5443334246,5.5454425132,5.547106645,5.5571094419,5.5031782947,5.4406112652,5.2093175654,5.1081756867,5.1066436936,5.1240655163,5.0723277732,4.9929400267,4.921577158,4.8502780702,4.7603082445,4.642844284,4.5864311804,4.5401219368,4.5315120639,4.5233699978,4.5174972515,4.4874314606,4.4460828897,4.34782211,4.2701061776,4.2408443516,4.2252110706,4.2087967632,4.1770511744,4.1566834255,4.1425985902,4.1097208237,4.0637998849,4.045997496,3.987775967,3.9242038644,3.8892010548,3.8744780382,3.8191010728,3.790294832,3.7834845598,3.7763095716,3.7695244277,3.7653825068,3.7392080506,3.6981584913,3.6349110392,3.5618922481,3.4797696836,3.3902666441,3.2533026045,3.0737930881,2.992982559,2.9294142695,2.8835655768,2.8364800086,2.8248979272,2.8439524083,2.8640004111,2.8697398908,2.8520571367,2.8224217088,2.8100574559,2.7966336146,2.7799538914,2.7578907651,2.7284237883,2.703283254,2.6725489412,2.6340912095,2.6005441895,2.5712321429,2.5379845454,2.5258604155,2.5125439326,2.4921086417,2.4792167149,2.4710622095,2.4612173402,2.4370901477,2.424724055,2.4308010577,2.4417891087,2.4515954906,2.4711173175,2.4743339515,2.4588432392,2.4507557452,2.4490414162,2.4315343687,2.4329941652,2.4439921297,2.4435034291,2.4342532667,2.4180523162,2.4139486036,2.4040918271,2.4002514248,2.3899745343,2.3799786241,2.3653136793,2.3537801565,2.3439356269,2.3336674899,2.3276156891,2.3215795822,2.314404927,2.3070224551,2.293490859,2.2877714305,2.2809286445,2.2711626451,2.2493440083,2.233929892,2.2232582524,2.2119771688,2.1979105414,2.1770112335,2.1573790839,2.1449384409,2.1404435095,2.1372376531,2.1266046299,2.1185541242,2.1124280828,2.0989945179,2.0925077439,2.0883310817,2.0769080872,2.0645209615,2.0558862393,2.0511685516,2.0495289285,2.0462549206,2.041355667,2.0338304942,2.0289609878,2.0112618832,1.9972809168,1.9832001954,1.9688277528,1.9603980412,1.9625568538,1.9639316059,1.965307321,1.954751662,1.9369318887,1.9171848844,1.9057503821,1.8880031524,1.8778626939,1.8655500635,1.8522141218,1.8417163387,1.8376734571,1.8376734571,1.8299875095,1.821789457,1.8159783263,1.8056859166,1.796523646,1.7874078659,1.7804640561,1.7772649791,1.7659628171,1.7563031497,1.7517486034,1.7442483355,1.7364343808,1.7255633318,1.7133982046,1.7041955486,1.6916771378,1.6762555864,1.6675841488,1.6576383189,1.6479156168,1.6421680287,1.6375827968,1.6397144256,1.6370950735,1.6326868191,1.6227878134,1.6140718255,1.6025335837,1.5925008285,1.5823736372,1.5695037069,1.5573563275,1.54806792,1.5440533812,1.5420487179,1.5392780174,1.531772333,1.5259736332,1.5179286115,1.5085754438,1.4865741464,1.469527626,1.4476678416,1.4374618623,1.4233704944,1.4124942884,1.4043490638,1.4008469465,1.3937388782,1.3830890922,1.3679053429,1.3557040068,1.3355373922,1.3229691849,1.317173621,1.3087973182,1.2960955815,1.2900324291,1.2818287252,1.2778673365,1.2768458598,1.2746789057,1.2737872546,1.2720064455,1.2666863628,1.2636535942,1.2596228012,1.2586159085,1.2541011444,1.2578747687,1.2557400107,1.2561168457,1.2563681194,1.2517366936,1.2494876159,1.2462473727,1.2433875813,1.241153505,1.2402853053,1.2376861643,1.2323869006,1.2150122258,1.2119822701,1.2119822701,1.2083571985,1.2035430264,1.206559425,1.2048726033,1.2005506211,1.1941024678,1.1849781361,1.1779106721,1.1761464524,1.1760288495,1.1748539955,1.1734458605,1.1740328769,1.1735634516,1.1672602462,1.1531913122,1.1510044039,1.1490510171,1.1469864415,1.1496305919,1.1525118716,1.1490646775,1.1440309414,1.1399272035,1.1300953737,1.1201262501,1.1095851908,1.0936183627,1.0906735441,1.0818027615,1.0725785856,1.0685182164,1.0583579798,1.0520457056,1.041423189,1.0323386093,1.02009744,1.0084,1.0]},"TR":{"s":24108,"v":[1.086503975562,1.084508418514,1.084019565603,1.082463005077,1.081971749449,1.081486200275,1.080777198368,1.079642414887,1.079429774382,1.079429774382,1.079429774382,1.079429774382,1.078854786288,1.078854786288,1.078854786288,1.078001009489,1.078001009489,1.077451509219,1.07681726385,1.075579272108,1.074602458473,1.073848616745,1.073341999321,1.072981477544,1.071474983717,1.070709426477,1.070148668575,1.068853218474,1.068458957119,1.066784106073,1.06559703098,1.064289019775,1.062084133114,1.061019930124,1.060362505371,1.059679012408,1.058687022668,1.057773106704,1.057773106704,1.05664461026,1.056404806369,1.055910640189,1.055910640189,1.055758610949,1.055628768611,1.055628768611,1.055628768611,1.055628768611,1.055628768611,1.055628768611,1.055628768611,1.055628768611,1.055628768611,1.055628768611,1.055628768611,1.055408188299,1.055408188299,1.055324817639,1.054354811212,1.054136604935,1.053616118573,1.052431081175,1.05186622901,1.051586506999,1.05110405024,1.050469566622,1.049981325306,1.048875810202,1.048244766852,1.047330447372,1.046244445637,1.045739353529,1.044639348296,1.043722959537,1.043547643533,1.042196956278,1.041078837606,1.039879856132,1.03799796582,1.035610882735,1.033681000308,1.031700136046,1.029856692567,1.028522698627,1.026213717762,1.024860901372,1.02388104721,1.021666075159,1.020335557592,1.018773777391,1.016696666102,1.015051267997,1.012474520342,1.010882380593,1.009266544855,1.007827367374,1.005967333774,1.004260091618,1.003956896635,1.002434199087,1.002434199087,1.001668924029,1.001132317107,1.000509,1.000509,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0000000001,1.000488,1.000605,1.0,1.000971,1.000555,1.001663,1.001484,1.001631,1.002409,1.001805,1.001494,1.001507,1.002072,1.0002081,1.000083,1.0002392,1.0000821,1.0002147,1.0001799,1.0001581,1.000216,1.000113,1.0001056,1.0000775,1.000069,1.0000875,1.0000079,1.0000331,1.0001023,1.000087,1.0000365,1.0000739]}},META={};const ORIG=JSON.parse(JSON.stringify(D));
+try{const s=localStorage.getItem('idxD');if(s){const o=JSON.parse(s);D=Object.assign(D,o.D);META=o.M||{}}}catch(e){}
+const $=i=>document.getElementById(i),NM={IPCA:'IPCA (EC 136/2025)',SELIC:'SELIC',INPC:'INPC',TR:'TR',NONE:'Sem correção'};
+const dn=(y,m,d)=>Date.UTC(y,m,d)/864e5,pd=s=>{const a=s.split('-');return dn(+a[0],a[1]-1,+a[2])};
+const pm=s=>{const a=s.split('-');return a[0]*12+(a[1]-1)},dm_=d=>{const t=new Date(d*864e5);return t.getUTCFullYear()*12+t.getUTCMonth()};
+const T=(k,i)=>{const o=D[k],v=o.v[i-o.s];return v>0?v:null};
+const rate=(k,i)=>{const a=T(k,i-1),b=T(k,i);return a&&b?a/b-1:null};
+const R=v=>v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+const ml=i=>String(i%12+1).padStart(2,'0')+'/'+Math.floor(i/12);
+const cov=k=>{const o=D[k];let a=0,b=o.v.length-1;while(a<b&&!o.v[a])a++;while(b>0&&!o.v[b])b--;return[o.s+a,o.s+b]};
+for(const s of['i1','i2','i3'])$(s).innerHTML=Object.keys(NM).map(k=>`<option value="${k}">${NM[k]}</option>`).join('');
+$('i1').value='IPCA';$('i2').value='SELIC';$('i3').value='NONE';
+function defF(){const e=Math.min(cov('IPCA')[1],cov('SELIC')[1]);$('F').value=new Date(dn(Math.floor(e/12),e%12+1,0)*864e5).toISOString().slice(0,10)}
+function status(){$('st').innerHTML=Object.keys(D).map(k=>{const c=cov(k),m=META[k];return`<tr><td style="text-align:left">${NM[k]}</td><td>${ml(c[0])} a ${ml(c[1])}</td><td>${m?m.ref:'planilha original'}</td><td>${m?m.file:'enviada inicialmente'}</td></tr>`}).join('')}
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tabs button').forEach(x=>x.classList.toggle('on',x===b));for(const t of['tc','ti'])$(t).classList.toggle('hide',t!==b.dataset.t)});
+async function readIdx(f){const wb=XLSX.read(await f.arrayBuffer(),{type:'array'}),rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,raw:true,defval:''});
+ const hd=rows.slice(0,8).map(r=>r.join(' ')).join(' ').toUpperCase(),h=hd+' '+f.name.toUpperCase();
+ const k=/TAXA SELIC/.test(hd)?'SELIC':/GRACA|EC 136|IPCA/.test(h)?'IPCA':/INPC|BENEF[ÍI]CIO PREVID/.test(h)?'INPC':/(^|[^A-Z])TR([^A-Z]|$)/.test(h)?'TR':/SELIC/.test(h)?'SELIC':null;
+ if(!k)throw new Error('tipo de índice não identificado');
+ const out={};let st=false;
+ for(const r of rows){const c=String(r[0]).trim();if(st&&/^SELIC/i.test(c))break;if(!/^\d{4}$/.test(c))continue;const y=+c;
+  for(let m=0;m<12;m++){const x=r[m+1],v=typeof x==='number'?x:parseFloat(String(x).replace(',','.'));if(v>0&&y*12+m>=1994*12+6){out[y*12+m]=v;st=true}}}
+ const ks=Object.keys(out).map(Number);if(ks.length<12)throw new Error('poucos dados lidos');
+ const s=Math.min(...ks),e=Math.max(...ks),rf=hd.match(/M[ÊE]S DE REFER[ÊE]NCIA:\s*([A-ZÇ]+ \d{4})/)||hd.match(/V[ÁA]LIDA PARA:\s*(\d{2}\/\d{4})/);
+ return{k,d:{s,v:Array.from({length:e-s+1},(_,i)=>out[s+i]||null)},ref:rf?rf[1]:'—'}}
+$('fi').onchange=async e=>{const lg=[];for(const f of e.target.files){try{const r=await readIdx(f);D[r.k]=r.d;META[r.k]={file:f.name,ref:r.ref};lg.push(`<div class="ok">✔ ${f.name}: ${NM[r.k]} atualizado (${ml(cov(r.k)[0])} a ${ml(cov(r.k)[1])})</div>`)}catch(x){lg.push(`<div class="w">✖ ${f.name}: ${x.message}</div>`)}}
+ try{localStorage.setItem('idxD',JSON.stringify({D,M:META}))}catch(x){lg.push('<div class="w">Não foi possível salvar no navegador; os índices valem só nesta sessão.</div>')}
+ $('lg').innerHTML=lg.join('');e.target.value='';status();defF();calc()};
+$('rs').onclick=()=>{D=JSON.parse(JSON.stringify(ORIG));META={};try{localStorage.removeItem('idxD')}catch(x){}$('lg').innerHTML='<div class="ok">Planilhas originais restauradas.</div>';status();defF();calc()};
+function rows(n){const b=$('rows'),old=[...b.children].map(r=>[...r.querySelectorAll('input')].map(x=>x.value));b.innerHTML='';
+ for(let i=0;i<n;i++){const t=document.createElement('tr'),o=old[i]||['','',''];
+  t.innerHTML=`<td>${i+1}</td><td><input value="${o[0].replace(/"/g,'&quot;')}" placeholder="ex.: Mensalidade associativa"></td><td><input type="date" value="${o[1]}"></td><td><input inputmode="decimal" value="${o[2]}" placeholder="0,00"></td>`;b.appendChild(t)}}
+const num=s=>{s=String(s).replace(/R\$|\s/g,'');if(s.includes(','))s=s.replace(/\./g,'').replace(',','.');const v=parseFloat(s);return isNaN(v)?0:v};
+const br=s=>s.split('-').reverse().join('/');
+function calc(){
+ const P={i1:$('i1').value,i2:$('i2').value,i3:$('i3').value,F:$('F').value?pd($('F').value):null,S:$('S').value?pm($('S').value):-1e9,S2:$('S2').value?pm($('S2').value):0,s1:$('s1').value?pm($('s1').value):0,
+  cm:$('cm').value==='same'?0:1,em:$('em').checked,ng:$('ng').checked,jt:$('so').checked?'none':$('jt').value,old:+$('old').value,cr:+$('cr').value/100,jm:$('jm').value,jd:$('jd').value?pd($('jd').value):-1e9,jb:$('jb').value,jc:$('jc').value==='c',sel:$('sel').checked,
+  dm:$('dm').value,dd:$('dd').value?pd($('dd').value):0,mu:+$('mu').value/100,ho:+$('ho').value/100,hb:$('hb').value,cu:num($('cu').value),ab:num($('ab').value),memo:$('memo').checked,pz:$('pz').value?pd($('pz').value):0};
+ $('oldw').classList.toggle('hide',P.jt!=='legal');$('crw').classList.toggle('hide',P.jt!=='custom');
+ const out=$('out');if(!P.F){out.innerHTML='';return}
+ const B=dm_(P.F)-(P.em?0:1),CUT=dn(2024,7,30),W=new Set(),res=[];
+ const ph=i=>i<=P.S?1:(P.S2&&i>P.S2?3:2),kAt=i=>{const p=ph(i);return p===1?(P.s1&&i<P.s1?'NONE':P.i1):p===2?P.i2:P.i3};
+ for(const tr of $('rows').children){const x=tr.querySelectorAll('input'),v=num(x[2].value);if(!x[1].value||v<=0)continue;
+  const d=pd(x[1].value),A=dm_(d);
+  if(P.pz&&d<P.pz){W.add('Desconto prescrito (anterior a '+br($('pz').value)+') ignorado: linha '+tr.children[0].textContent);continue}
+  if(d>P.F){W.add('Desconto posterior à data final ignorado: linha '+tr.children[0].textContent);continue}
+  const mult=P.dm==='all'||(P.dm==='from'&&d>=P.dd)?2:1,V=v*mult,fa=[1,1,1,1],memo={};let val=V,sa=0;
+  for(let i=A+P.cm;i<=B;i++){const k=kAt(i);if(k==='NONE')continue;let r=rate(k,i);if(r===null){W.add(`${NM[k]} sem dados em ${ml(i)} (considerado 0%)`);continue}
+   if(P.ng&&r<0)r=0;if(k==='SELIC')sa+=val*r;val*=1+r;fa[ph(i)]*=1+r;memo[i]={k,r,acc:val/V}}
+  const f=val/V;let sum=0,sk=false;if(P.jt==='none')for(let i=A+P.cm;i<=B;i++)if(kAt(i)==='SELIC'&&memo[i]){sk=true;break}
+  if(P.jt!=='none'){const js=P.jm==='item'?d:Math.max(P.jd,d);
+   for(let i=dm_(js);i<=dm_(P.F);i++){
+    const y=Math.floor(i/12),m=i%12,dim=dn(y,m+1,0)-dn(y,m,0),se=Math.max(js,dn(y,m,0)),ee=Math.min(P.F,dn(y,m+1,0)),n=ee-se;if(n<=0)continue;
+    const mo=memo[i]||(memo[i]={});
+    if(P.sel&&i>=A+P.cm&&i<=B&&kAt(i)==='SELIC'){sk=true;mo.j='SELIC';continue}
+    let z=0;
+    if(P.jt==='a12')z=n/dim*.01;else if(P.jt==='a6')z=n/dim*.005;else if(P.jt==='custom')z=n/dim*P.cr;
+    else if(P.jt==='selic'){const s=rate('SELIC',i);if(s===null)W.add('SELIC sem dados em '+ml(i)+' (considerado 0%)');else z=n/dim*s}
+    else{const od=Math.max(0,Math.min(ee,CUT-1)-se),nd=n-od;z=od/dim*P.old/12;
+     if(nd>0){const s=rate('SELIC',i),p=rate('IPCA',i);if(s===null||p===null)W.add('Taxa Legal sem SELIC/IPCA em '+ml(i)+' (considerado 0%)');else z+=nd/dim*Math.max(0,s-p)}}
+    sum=P.jc?(1+sum)*(1+z)-1:sum+z;mo.j=(z*100).toFixed(4)+'%'}}
+  const j=(P.jb==='corr'?val:V)*sum;
+  res.push({n:tr.children[0].textContent,desc:x[0].value,d:br(x[1].value),v,V,fa,cor:val-V-sa,sa,j,sk,tot:val+j,memo,A})}
+ if(!res.length){out.innerHTML='';return}
+ const S=k=>res.reduce((a,r)=>a+r[k],0),orig=S('v'),dob=S('V')-orig,cor=S('cor'),sa=S('sa'),jur=S('j'),sub=orig+dob+cor+sa+jur,mu=sub*P.mu,ho=(P.hb==='s'?sub:sub+mu)*P.ho,tot=sub+mu+ho+P.cu-P.ab,anyS=res.some(r=>r.sk);
+ const p3=!!P.S2,jc=r=>r.sk?(r.j>0?R(r.j)+' + ':'')+'<span class="sl">juros da SELIC</span>':R(r.j);
+ const gross=sub+mu+ho+P.cu,pc=x=>gross>0?(x/gross*100).toFixed(1).replace('.',',')+'%':'',
+  L=[['Valor original',orig,1],['Acréscimo (dobro)',dob,2],['Correção monetária',cor,3],['SELIC (correção + juros)',sa,4],[anyS?'Juros de mora (fora da SELIC)':'Juros de mora',jur,5],['Multa',mu,6],['Honorários',ho,7],['Custas / despesas',P.cu,8]].filter(x=>x[1]>0.004);
+ const f1=P.i1==='NONE'?'sem correção':`${NM[P.i1]}${P.s1?' de '+ml(P.s1):''} até ${ml(P.S)}`,f2=`${NM[P.i2]} ${P.S2?'de '+ml(P.S+1)+' até '+ml(P.S2):'a partir de '+ml(P.S+1)}`,f3=p3?`${NM[P.i3]} a partir de ${ml(P.S2+1)}`:'';
+ const JT={legal:'Taxa Legal – art. 406 CC / Lei 14.905/24 + STJ Tema 1368 (SELIC − IPCA); antes de 30/08/2024: '+(P.old*100)+'% a.a.',a12:'12% a.a. (1% a.m.)',a6:'6% a.a. (0,5% a.m.)',selic:'Taxa SELIC mensal',custom:(P.cr*100).toFixed(2).replace('.',',')+'% a.m.',none:'Sem juros de mora; apenas os juros da SELIC, nos meses corrigidos por ela'};
+ const jx=P.jt==='none'?'':` · ${P.jc?'compostos':'simples'}, sobre o valor ${P.jb==='corr'?'corrigido':'nominal'}, com início ${P.jm==='item'||P.jd<-1e8?'na data de cada desconto':'em '+br($('jd').value)}`;
+ const ac=[P.dm==='all'?'Repetição em dobro (todos)':P.dm==='from'?'Repetição em dobro a partir de '+br($('dd').value):'',P.mu?'Multa '+(P.mu*100).toFixed(2).replace('.',',')+'%':'',P.ho?'Honorários '+(P.ho*100).toFixed(2).replace('.',',')+'%':'',P.ab?'Abatimento '+R(P.ab):''].filter(Boolean).join(' · ')||'Nenhum';
+ const meta=[['Tribunal',$('tj').value],['Vara / Comarca',$('vr').value],['Processo',$('pr').value],['Autor(a)',$('au').value],['Réu',$('re').value],['Posição em',br($('F').value)],['Itens atualizados',res.length],['Valor original',R(orig)],['Observações',$('ob').value]].filter(x=>x[1]!=='');
+ out.innerHTML=`<div class="rp"><div class="rh"><div><div class="eb">DEMONSTRATIVO DE CÁLCULO</div><h3>Atualização de débito judicial</h3></div><div class="tot"><small>Total atualizado</small><b>${R(tot)}</b></div></div>
+ <div class="meta">${meta.map(m=>`<div><small>${m[0]}</small><b>${m[1]}</b></div>`).join('')}</div>
+ ${[...W].map(w=>`<div class="w">⚠ ${w}</div>`).join('')}
+ <div class="bar">${L.map(x=>`<i style="width:${x[1]/gross*100}%;background:var(--c${x[2]})" title="${x[0]}"></i>`).join('')}</div>
+ <div class="two"><div class="pn"><h4>Resumo da liquidação</h4>${L.filter(x=>x[2]<6).map(x=>`<div class="ln"><span class="d" style="background:var(--c${x[2]})"></span>${x[0]}<em>${R(x[1])}</em><small>${pc(x[1])}</small></div>`).join('')}
+  <div class="ln st">Subtotal<em>${R(sub)}</em><small></small></div>${L.filter(x=>x[2]>=6).map(x=>`<div class="ln"><span class="d" style="background:var(--c${x[2]})"></span>${x[0]}<em>${R(x[1])}</em><small>${pc(x[1])}</small></div>`).join('')}${P.ab?`<div class="ln"><span class="d" style="background:var(--mu)"></span>(−) Valores já pagos<em>− ${R(P.ab)}</em><small></small></div>`:''}
+  <div class="ln gt">Total atualizado<em>${R(tot)}</em><small></small></div></div>
+ <div class="pn cr"><h4>Critérios adotados</h4><p><b>Correção monetária</b>${f1}<br>${f2}${f3?'<br>'+f3:''}${P.ng?'<br>Índices negativos considerados 0%':''}</p><p><b>Juros moratórios</b>${JT[P.jt]}${jx}${(P.jt==='none'||P.sel)&&anyS?'<br><span class="chip">SELIC</span> nos meses corrigidos pela SELIC os juros são os da própria SELIC':''}</p><p><b>Acréscimos e deduções</b>${ac}</p><p><b>Data final</b>${br($('F').value)}${P.em?'':' (mês final não incluído)'}</p></div></div>
+ <div class="rt tw"><table><thead><tr><th>#</th><th>Descrição</th><th>Data</th><th>Valor base</th><th>Fase 1</th><th>Fase 2</th>${p3?'<th>Fase 3</th>':''}<th>Correção</th><th>SELIC</th><th>Juros de mora</th><th>Total</th></tr></thead><tbody>${res.map(r=>`<tr><td>${r.n}</td><td>${r.desc}</td><td>${r.d}</td><td>${R(r.V)}</td><td>${r.fa[1].toFixed(6)}</td><td>${r.fa[2].toFixed(6)}</td>${p3?`<td>${r.fa[3].toFixed(6)}</td>`:''}<td>${R(r.cor)}</td><td>${R(r.sa)}</td><td>${jc(r)}</td><td><b>${R(r.tot)}</b></td></tr>`).join('')}</tbody>
+ <tfoot><tr><td></td><td style="text-align:left">Totais</td><td></td><td>${R(orig+dob)}</td><td></td><td></td>${p3?'<td></td>':''}<td>${R(cor)}</td><td>${R(sa)}</td><td>${R(jur)}</td><td>${R(sub)}</td></tr></tfoot></table></div>
+ ${P.memo?res.map(r=>`<details><summary>Memorial – item ${r.n} ${r.desc}</summary><div class="tw rt"><table><thead><tr><th>Mês</th><th>Índice</th><th>Taxa</th><th>Fator acumulado</th><th>Juros de mora</th></tr></thead><tbody>${Object.keys(r.memo).sort((a,b)=>a-b).map(i=>{const m=r.memo[i];return`<tr><td>${ml(+i)}</td><td>${m.k?NM[m.k]:'—'}</td><td>${m.r!=null?(m.r*100).toFixed(4)+'%':'—'}</td><td>${m.acc?m.acc.toFixed(6):'—'}</td><td>${m.j||'—'}</td></tr>`}).join('')}</tbody></table></div></details>`).join(''):''}
+ <div class="acts"><button class="s" id="cp">Copiar para planilha</button><button class="s" id="pdf">Baixar PDF</button></div><textarea id="tsv" class="hide" rows="5"></textarea></div>`;
+ const f6=x=>x.toFixed(6).replace('.',','),tsv='#\tDescrição\tData\tValor\tCorreção\tSELIC\tJuros de mora\tTotal\n'+res.map(r=>[r.n,r.desc,r.d,f6(r.V),f6(r.cor),f6(r.sa),r.sk?'SELIC':f6(r.j),f6(r.tot)].join('\t')).join('\n');
+ LAST={res,P,L,sub,tot,orig,p3,meta,mu,ho,sub,ab:P.ab,crit:[['Correção monetária',[f1,f2,f3,P.ng?'índices negativos considerados 0%':''].filter(Boolean).join('; ')],['Juros moratórios',JT[P.jt]+jx+((P.jt==='none'||P.sel)&&anyS?'; nos meses corrigidos pela SELIC os juros são os da própria SELIC':'')],['Acréscimos e deduções',ac],['Data final',br($('F').value)+(P.em?'':' (mês final não incluído)')]],W:[...W]};
+ $('pdf').onclick=pdf;
+ $('cp').onclick=async()=>{try{await navigator.clipboard.writeText(tsv);$('cp').textContent='Copiado ✓'}catch(e){const t=$('tsv');t.value=tsv;t.classList.remove('hide');t.select()}}}
+let LAST=null;const cl=s=>String(s).replace(/[−–]/g,'-').replace(/→/g,'>');
+async function pdf(){const b=$('pdf'),dl=window.claude?await claude.use('downloads'):{save:async q=>{const a=document.createElement('a');a.href=URL.createObjectURL(q.data);a.download=q.filename;a.click()}};if(!dl){b.textContent='PDF indisponível neste ambiente';return}
+ if(!window.jspdf){b.textContent='Biblioteca de PDF não carregou';return}
+ const L=LAST,doc=new window.jspdf.jsPDF({orientation:'landscape',unit:'mm',format:'a4'}),W=297,M=14;
+ doc.setFillColor(18,57,92);doc.rect(0,0,W,30,'F');doc.setTextColor(224,194,122);doc.setFontSize(9);doc.text('DEMONSTRATIVO DE CÁLCULO',M,11);
+ doc.setTextColor(255);doc.setFontSize(17);doc.text('Atualização de débito judicial',M,21);doc.setFontSize(9);doc.text('TOTAL ATUALIZADO',W-M,11,{align:'right'});doc.setFontSize(20);doc.text(cl(R(L.tot)),W-M,22,{align:'right'});
+ doc.setTextColor(40);doc.setFontSize(9);let y=38;
+ const mt=doc.splitTextToSize(cl(L.meta.map(m=>m[0]+': '+m[1]).join('     |     ')),W-2*M);doc.text(mt,M,y);y+=mt.length*4.5+3;
+ const rows=[];const S=L.L;for(const x of S.filter(x=>x[2]<6))rows.push([x[0],R(x[1])]);rows.push(['Subtotal',R(L.sub)]);for(const x of S.filter(x=>x[2]>=6))rows.push([x[0],R(x[1])]);if(L.ab)rows.push(['(-) Valores já pagos','- '+R(L.ab)]);rows.push(['TOTAL ATUALIZADO',R(L.tot)]);
+ doc.autoTable({startY:y,head:[['Resumo da liquidação','Valor']],body:rows.map(r=>r.map(cl)),margin:{left:M},tableWidth:115,styles:{fontSize:9,cellPadding:1.6},headStyles:{fillColor:[29,78,122]},columnStyles:{1:{halign:'right'}},didParseCell:h=>{if(h.section==='body'&&(h.row.raw[0]==='Subtotal'||h.row.raw[0]==='TOTAL ATUALIZADO'))h.cell.styles.fontStyle='bold'}});
+ let y2=doc.lastAutoTable.finalY,cy=y+4;doc.setTextColor(40);
+ for(const c of L.crit){doc.setFontSize(7.5);doc.setTextColor(110);doc.text(c[0].toUpperCase(),145,cy);doc.setFontSize(9);doc.setTextColor(40);const ls=doc.splitTextToSize(cl(c[1]),W-145-M);doc.text(ls,145,cy+4);cy+=ls.length*4+8}
+ const fz=v=>v.toFixed(6),head=['#','Descrição','Data','Valor base','Fase 1','Fase 2',...(L.p3?['Fase 3']:[]),'Correção','SELIC','Juros de mora','Total'],R2=L.res;
+ doc.autoTable({startY:Math.max(y2,cy)+8,head:[head],body:R2.map(r=>[r.n,cl(r.desc),r.d,R(r.V),fz(r.fa[1]),fz(r.fa[2]),...(L.p3?[fz(r.fa[3])]:[]),R(r.cor),R(r.sa),r.sk?(r.j>0?R(r.j)+' + ':'')+'juros da SELIC':R(r.j),R(r.tot)]),
+  foot:[['','Totais','',R(R2.reduce((a,r)=>a+r.V,0)),'','',...(L.p3?['']:[]),R(R2.reduce((a,r)=>a+r.cor,0)),R(R2.reduce((a,r)=>a+r.sa,0)),R(R2.reduce((a,r)=>a+r.j,0)),R(L.sub)]],
+  margin:{left:M,right:M},styles:{fontSize:8,cellPadding:1.5},headStyles:{fillColor:[29,78,122]},footStyles:{fillColor:[232,240,247],textColor:20},alternateRowStyles:{fillColor:[246,248,251]},columnStyles:Object.fromEntries(head.map((_,i)=>[i,{halign:i===1?'left':i===0?'center':'right'}]))});
+ const n=doc.getNumberOfPages();for(let i=1;i<=n;i++){doc.setPage(i);doc.setFontSize(8);doc.setTextColor(120);doc.text('Gerado em '+new Date().toLocaleDateString('pt-BR')+' - Página '+i+'/'+n,W-M,205,{align:'right'})}
+ try{await dl.save({filename:'demonstrativo-calculo.pdf',data:doc.output('blob')})}catch(e){if(e&&e.code!=='declined')b.textContent='Não foi possível salvar o PDF'}}
+$('ma').onclick=()=>{const m=$('md').value,f=$('F').value;$('s1').value='';$('S2').value='';$('i3').value='NONE';
+ if(m==='lei'){$('i1').value='IPCA';$('S').value=f.slice(0,7);$('i2').value='NONE';$('jt').value='legal';$('so').checked=false}
+ else if(m==='selic'){$('i1').value='NONE';$('S').value='1994-06';$('i2').value='SELIC';$('so').checked=true}
+ else{$('i1').value='IPCA';$('S').value='2025-09';$('i2').value='SELIC';$('jt').value='legal';$('so').checked=false;$('sel').checked=true}calc()};
+$('qt').onchange=()=>{let n=Math.min(100,Math.max(10,parseInt($('qt').value)||10));$('qt').value=n;rows(n);calc()};
+$('bp').onclick=()=>$('pw').classList.toggle('hide');
+$('bc').onclick=()=>{rows(+$('qt').value);calc()};
+$('bi').onclick=()=>{const L=$('pt').value.split('\n').map(l=>l.trim()).filter(Boolean),it=[];
+ for(const l of L){let d='',v='',s='';for(const c of l.split(/\t|;/).map(x=>x.trim())){let m;
+  if(m=c.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/))d=`${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;else if(/^\d{4}-\d{2}-\d{2}$/.test(c))d=c;
+  else if(/^(R\$)?\s*[\d.,]+$/.test(c))v=c.replace(/R\$|\s/g,'');else s=s?s+' '+c:c}
+  it.push([s,d,v])}
+ const n=Math.min(100,Math.max(10,it.length));$('qt').value=n;rows(n);[...$('rows').children].forEach((t,i)=>{if(it[i])t.querySelectorAll('input').forEach((x,j)=>x.value=it[i][j])});$('pw').classList.add('hide');calc()};
+document.addEventListener('input',e=>{if(e.target.id!=='fi')calc()});document.addEventListener('change',e=>{if(e.target.id!=='fi')calc()});
+rows(10);defF();status();calc();
+</script></body></html>
